@@ -1,0 +1,314 @@
+{
+	"info": {
+		"_postman_id": "56385941-0e50-43bb-8c92-7db24f5fdcc1",
+		"name": "Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23651668"
+	},
+	"item": [
+		{
+			"name": "Create",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var std = pm.response.json();\r",
+							"var code = responseCode.code;\r",
+							"pm.environment.set(\"ID\", std.id);\r",
+							"\r",
+							"pm.test(`Getting response code: ${pm.response.code}`, ()=>{\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"})\r",
+							"pm.test(`Showing status: ${pm.response.status}`, ()=>{\r",
+							"            pm.expect(pm.response.status).to.eql(\"Created\");\r",
+							"})\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let moment = require('moment');\r",
+							"let today = moment();\r",
+							"\r",
+							"pm.environment.set(\"bDay\",today.add(-27,'year').format(\"YYYY-MM-DD\"));\r",
+							"\r",
+							"let fName = pm.variables.replaceIn('{{$randomNamePrefix}}');\r",
+							"pm.environment.set(\"first_name\", fName);\r",
+							"\r",
+							"let mName = pm.variables.replaceIn('{{$randomFirstName}}');\r",
+							"pm.environment.set(\"middle_name\", mName);\r",
+							"\r",
+							"let lName = pm.variables.replaceIn('{{$randomLastName}}');\r",
+							"pm.environment.set(\"last_name\", lName);\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"first_name\": \"{{first_name}}\",\r\n  \"middle_name\": \"{{middle_name}}\",\r\n  \"last_name\": \"{{last_name}}\",\r\n  \"date_of_birth\": \"{{BDay}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base}}/api/studentsDetails",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"api",
+						"studentsDetails"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var std = pm.response.json();\r",
+							"var code = responseCode.code;\r",
+							"\r",
+							"switch(code){\r",
+							"    case 200:\r",
+							"        pm.test(\"Check ID\", ()=>{\r",
+							"            pm.expect(std.id).to.eql(pm.environment.ID);\r",
+							"        })\r",
+							"        pm.test(`First Name check`, ()=>{\r",
+							"            pm.expect(std.first_name).to.eql(pm.environment.first_name);\r",
+							"        })\r",
+							"        pm.test(`Middle Name check`, ()=>{\r",
+							"            pm.expect(std.middle_name).to.eql(pm.environment.middle_name);\r",
+							"        })\r",
+							"        pm.test(`Last Name check`, ()=>{\r",
+							"            pm.expect(std.last_name).to.eql(pm.environment.last_name);\r",
+							"        })\r",
+							"        pm.test(\"Checking date of birth\", ()=>{\r",
+							"            pm.expect(std.date_of_birth).to.eql(pm.environment.bDay);\r",
+							"        })\r",
+							"        break;\r",
+							"    case 201:\r",
+							"        pm.test(\"Not reading, check method\");\r",
+							"        break;\r",
+							"    default:\r",
+							"        pm.test(\"No valid response\");\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base}}/api/studentsDetails/{{ID}}",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"api",
+						"studentsDetails",
+						"{{ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var std = pm.response.json();\r",
+							"var code = responseCode.code;\r",
+							"\r",
+							"pm.test(\"Response status check\", ()=>{\r",
+							"    pm.expect(pm.response.status).to.eql(\"Updated\");\r",
+							"})\r",
+							"pm.test(\"Message check\", ()=>{\r",
+							"    pm.expect(std.msg).to.eql(\"update  data success\");\r",
+							"})\r",
+							"pm.test(\"Status check\", ()=>{\r",
+							"    pm.expect(std.status).to.eql(\"true\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\":{{ID}},\r\n  \"first_name\": \"Mohammad\",\r\n  \"middle_name\": \"Asif\",\r\n  \"last_name\": \"Iqbal\",\r\n  \"date_of_birth\": \"1992-11-19\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base}}/api/studentsDetails/{{ID}}",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"api",
+						"studentsDetails",
+						"{{ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Read Update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var std = pm.response.json();\r",
+							"var code = responseCode.code;\r",
+							"\r",
+							"switch(code){\r",
+							"    case 200:\r",
+							"        pm.test(\"Check ID\", ()=>{\r",
+							"            pm.expect(std.id).to.eql(pm.environment.ID);\r",
+							"        })\r",
+							"        pm.test(`First Name check`, ()=>{\r",
+							"            pm.expect(std.data.first_name).to.eql(\"mohammad\");\r",
+							"        })\r",
+							"        pm.test(`Middle Name check`, ()=>{\r",
+							"            pm.expect(std.data.middle_name).to.eql(\"Asif\");\r",
+							"        })\r",
+							"        pm.test(`Last Name check`, ()=>{\r",
+							"            pm.expect(std.data.last_name).to.eql(\"Iqbal\");\r",
+							"        })\r",
+							"        pm.test(\"Checking date of birth\", ()=>{\r",
+							"            pm.expect(std.data.date_of_birth).to.eql(\"19-11-1992\");\r",
+							"        })\r",
+							"        break;\r",
+							"    case 201:\r",
+							"        pm.test(\"Not reading, check method\");\r",
+							"    default:\r",
+							"        pm.test(\"No valid response\");\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base}}/api/studentsDetails/{{ID}}",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"api",
+						"studentsDetails",
+						"{{ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var std = pm.response.json();\r",
+							"var code = responseCode.code;\r",
+							"\r",
+							"pm.test(`Getting response code: ${pm.response.code}`, ()=>{\r",
+							"    pm.expect(pm.response.code).to.eql(204);\r",
+							"})\r",
+							"pm.test(`Showing status: ${pm.response.status}`, ()=>{\r",
+							"            pm.expect(pm.response.status).to.eql(\"OK\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base}}/api/studentsDetails/{{ID}}",
+					"host": [
+						"{{base}}"
+					],
+					"path": [
+						"api",
+						"studentsDetails",
+						"{{ID}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
